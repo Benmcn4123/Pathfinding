@@ -15,6 +15,7 @@ path_nodes = []
 
 walls = []
 mouse_down = False
+right_mouse_down = False
 
 def calc_path(end, start):
     global win, walls
@@ -29,7 +30,7 @@ def calc_path(end, start):
 
     def get_surrounding_points(point, blocks):
         points = []
-        edges = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1), (point[0], point[1] - 1), (point[0] + 1, point[1] - 1), (point[0] + 1, point[1] + 1), (point[0] - 1, point[1] + 1), (point[0] - 1, point[1] - 1)]
+        edges = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1), (point[0], point[1] - 1)]
         for edge in edges:
             if not edge in blocks:
                 points.append(edge)
@@ -83,7 +84,11 @@ while True:
             if event.key == K_RETURN:
                 path_nodes = calc_path(end, start)
         if event.type == MOUSEBUTTONDOWN:
-            mouse_down = True
+            buttons = pygame.mouse.get_pressed()
+            if buttons[0]:
+                mouse_down = True
+            elif buttons[2]:
+                right_mouse_down = True
             if draw_state == "start":
                 start = cell_pos
                 visible_start = cell_pos
@@ -92,9 +97,12 @@ while True:
                 visible_end = cell_pos
         elif event.type == MOUSEBUTTONUP:
             mouse_down = False
+            right_mouse_down = False
 
     if mouse_down and draw_state == "wall" and not cell_pos in walls:
         walls.append(cell_pos)
+    elif right_mouse_down and draw_state == "wall" and cell_pos in walls:
+        walls.remove(cell_pos)
 
     for wall in walls:
         pygame.draw.rect(win, (0, 0, 0), (wall[0] * 10 - 5, wall[1] * 10 - 5, 10, 10))
